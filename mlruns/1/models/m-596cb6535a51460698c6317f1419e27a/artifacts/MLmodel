@@ -1,0 +1,23 @@
+artifact_path: file:///C:/finsight-ai/mlruns/1/models/m-596cb6535a51460698c6317f1419e27a/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.11.4
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.9.0
+    skops_trusted_types: null
+mlflow_version: 3.13.0
+model_id: m-596cb6535a51460698c6317f1419e27a
+model_size_bytes: 2385580
+model_uuid: m-596cb6535a51460698c6317f1419e27a
+prompts: null
+run_id: 518b10b211c74cdfb155537d305d3fc1
+utc_time_created: '2026-06-12 08:27:00.186834'

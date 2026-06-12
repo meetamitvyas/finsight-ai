@@ -30,6 +30,19 @@ print()
 print("Missing values after cleaning:")
 print(df.isnull().sum())
 
+# ── Step 4b: Cap extreme outliers ─────────────────────────────────────
+# RevolvingUtilizationOfUnsecuredLines should realistically be 0 to ~2
+# Values above 2 are data entry errors, not real customers
+# We cap them at 2 rather than deleting rows (preserves the customer record)
+before_capping = (df["RevolvingUtilizationOfUnsecuredLines"] > 2).sum()
+df["RevolvingUtilizationOfUnsecuredLines"] = df["RevolvingUtilizationOfUnsecuredLines"].clip(upper=2)
+print(f"Capped {before_capping} extreme outlier values in RevolvingUtilizationOfUnsecuredLines")
+
+# DebtRatio has the same issue - check and cap similarly
+before_capping_debt = (df["DebtRatio"] > 5).sum()
+df["DebtRatio"] = df["DebtRatio"].clip(upper=5)
+print(f"Capped {before_capping_debt} extreme outlier values in DebtRatio")
+
 # ── Step 5: Save clean data ──────────────────────────────────────────
 os.makedirs("data/processed", exist_ok=True)
 df.to_csv("data/processed/credit_clean.csv", index=False)

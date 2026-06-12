@@ -1,10 +1,18 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 import mlflow
 import pandas as pd
 
 # ── Create the API application ────────────────────────────────────────
 app = FastAPI(title="FinSight AI - Credit Risk API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow requests from any origin (fine for local development)
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # ── Load the production model ONCE when the server starts ────────────
 # We don't want to load the model on every request - that would be slow

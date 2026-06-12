@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FinSight AI - Credit Risk Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #1a1a2e;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #1a1a2e;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #16213e;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+        .approve {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .reject {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        input.invalid {
+            border-color: #dc3545;
+            background-color: #fff5f5;
+        }
+        .field-error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 3px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>FinSight AI - Credit Risk Checker</h1>
+    <p>Enter customer financial details to get an instant credit risk assessment.</p>
+
+    <div class="form-group">
+        <label>Revolving Utilization of Unsecured Lines (0 to 1)</label>
+        <!--<input type="number" id="utilization" value="0.95" step="0.01">-->
+        <input type="number" id="utilization" value="0.95" step="0.01" onblur="validateField('utilization')">
+        <div class="field-error" id="utilization-error">This field is required and must be a number.</div>
+    </div>
+
+    <div class="form-group">
+        <label>Age</label>
+        <input type="number" id="age" value="35" onblur="validateField('age')">
+        <div class="field-error" id="age-error">This field is required and must be a number.</div>
+    </div>
+
+    <div class="form-group">
+        <label>Number of Times 30-59 Days Past Due</label>
+        <input type="number" id="late30_59" value="3" onblur="validateField('late30_59')">
+        <div class="field-error" id="late30_59-error">This field is required and must be a number.</div>
+    </div>
+
+    <div class="form-group">
+        <label>Debt Ratio</label>
+        <input type="number" id="debtRatio" value="0.8" step="0.01" onblur="validateField('debtRatio')">
+        <div class="field-error" id="debtRatio-error">This field is required and must be a number.</div>
+    </div>
+
+    <div class="form-group">
+        <label>Monthly Income ($)</label>
+        <input type="number" id="income" value="3000" onblur="validateField('income')">
+        <div class="field-error" id="income-error">This field is required and must be a number.</div>
+    </div>
+
+    <div class="form-group">
+        <label>Number of Open Credit Lines and Loans</label>
+        <input type="number" id="openCredit" value="8" onblur="validateField('openCredit')">
+        <div class="field-error" id="openCredit-error">This field is required and must be a number.</div>
+    </div>
+
+    <div class="form-group">
+        <label>Number of Times 90 Days Late</label>
+        <input type="number" id="late90" value="2" onblur="validateField('late90')">
+        <div class="field-error" id="late90-error">This field is required and must be a number.</div>
+    </div>
+
+    <div class="form-group">
+        <label>Number of Real Estate Loans or Lines</label>
+        <input type="number" id="realEstate" value="0" onblur="validateField('realEstate')">
+        <div class="field-error" id="realEstate-error">This field is required and must be a number.</div>
+    </div>
+
+    <div class="form-group">
+        <label>Number of Times 60-89 Days Past Due</label>
+        <input type="number" id="late60_89" value="1" onblur="validateField('late60_89')">
+        <div class="field-error" id="late60_89-error">This field is required and must be a number.</div>
+    </div>
+
+    <div class="form-group">
+        <label>Number of Dependents</label>
+        <input type="number" id="dependents" value="3" onblur="validateField('dependents')">
+        <div class="field-error" id="dependents-error">This field is required and must be a number.</div>
+    </div>
+
+    <button onclick="checkRisk()">Check Credit Risk</button>
+
+    <div id="result"></div>
+
+    <script>
+            async function checkRisk() {
+    // Collect all values from the form
+    const fields = {
+        utilization: "Revolving Utilization",
+        age: "Age",
+        late30_59: "Number of Times 30-59 Days Past Due",
+        debtRatio: "Debt Ratio",
+        income: "Monthly Income",
+        openCredit: "Number of Open Credit Lines",
+        late90: "Number of Times 90 Days Late",
+        realEstate: "Number of Real Estate Loans",
+        late60_89: "Number of Times 60-89 Days Past Due",
+        dependents: "Number of Dependents"
+    };
+
+    // Validate every field BEFORE sending
+    // NEW - run full validation (type + range) on every field
+    let allValid = true;
+    for (const id of Object.keys(fields)) {
+        const fieldValid = validateField(id);
+        if (!fieldValid) {
+            allValid = false;
+        }
+    }
+
+    if (!allValid) {
+        const resultDiv = document.getElementById("result");
+        resultDiv.style.display = "block";
+        resultDiv.className = "reject";
+        resultDiv.innerHTML = "Please fix the highlighted fields above before submitting.";
+        return;
+    }
+
+    // If we reach here, all fields are valid numbers
+    const data = {
+        RevolvingUtilizationOfUnsecuredLines: parseFloat(document.getElementById("utilization").value),
+        age: parseInt(document.getElementById("age").value),
+        NumberOfTime30_59DaysPastDueNotWorse: parseInt(document.getElementById("late30_59").value),
+        DebtRatio: parseFloat(document.getElementById("debtRatio").value),
+        MonthlyIncome: parseFloat(document.getElementById("income").value),
+        NumberOfOpenCreditLinesAndLoans: parseInt(document.getElementById("openCredit").value),
+        NumberOfTimes90DaysLate: parseInt(document.getElementById("late90").value),
+        NumberRealEstateLoansOrLines: parseInt(document.getElementById("realEstate").value),
+        NumberOfTime60_89DaysPastDueNotWorse: parseInt(document.getElementById("late60_89").value),
+        NumberOfDependents: parseInt(document.getElementById("dependents").value)
+    };
+
+    const response = await fetch("http://127.0.0.1:8000/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    const resultDiv = document.getElementById("result");
+    resultDiv.style.display = "block";
+
+    const probability = (result.default_probability * 100).toFixed(1);
+
+    if (result.decision === "REJECT") {
+        resultDiv.className = "reject";
+        resultDiv.innerHTML = `Default Risk: ${probability}% &mdash; LOAN REJECTED`;
+    } else {
+        resultDiv.className = "approve";
+        resultDiv.innerHTML = `Default Risk: ${probability}% &mdash; LOAN APPROVED`;
+    }
+}
+
+// Define min/max rules for each field
+const fieldRules = {
+    utilization: { min: 0, max: 1 },
+    age: { min: 18, max: 100 },
+    late30_59: { min: 0, max: null },
+    debtRatio: { min: 0, max: 1 },
+    income: { min: 0, max: null },
+    openCredit: { min: 0, max: null },
+    late90: { min: 0, max: null },
+    realEstate: { min: 0, max: null },
+    late60_89: { min: 0, max: null },
+    dependents: { min: 0, max: null }
+};
+
+function validateField(fieldId) {
+    const input = document.getElementById(fieldId);
+    const errorDiv = document.getElementById(fieldId + "-error");
+    const value = input.value;
+    const rules = fieldRules[fieldId];
+
+    let isValid = true;
+    let message = "This field is required and must be a number.";
+
+    if (value === "" || isNaN(value)) {
+        isValid = false;
+    } else {
+        const numValue = parseFloat(value);
+        if (rules.min !== null && numValue < rules.min) {
+            isValid = false;
+            message = `Value must be at least ${rules.min}.`;
+        }
+        if (rules.max !== null && numValue > rules.max) {
+            isValid = false;
+            message = `Value must be at most ${rules.max}.`;
+        }
+    }
+
+    if (!isValid) {
+        input.classList.add("invalid");
+        errorDiv.textContent = message;
+        errorDiv.style.display = "block";
+        return false;
+    } else {
+        input.classList.remove("invalid");
+        errorDiv.style.display = "none";
+        return true;
+    }
+}
+</script>
+</body>
+</html>
